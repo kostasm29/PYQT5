@@ -127,12 +127,13 @@ class Ui_MainWindow(object):
             for data in rows:
                 if str(data[0]) == self.Username.text():
                     print('Log in')
-                    self.MainWindow.close()
+                    self.Message.setText("Successful  Login")
                 else:
                     self.Message.setText("Wrong Username")
-            print(rows)
             if not rows:
                 self.Message.setText("Wrong Password")
+            else:
+                self.Message.setText("Successful Login")
 
             cur.close()
             conn.close()

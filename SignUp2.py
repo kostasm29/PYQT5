@@ -7,6 +7,9 @@ from random import randint
 import psycopg2
 import Login
 
+
+
+ff
 DB_HOST = "localhost"
 DB_NAME = "demodb"
 DB_USER = "postgres"

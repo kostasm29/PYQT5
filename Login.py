@@ -10,13 +10,13 @@ DB_PASS = "kostas"
 
 class Ui_MainWindow(object):
     def setupUi(self):
-
+        # main Window
         self.MainWindow = QtWidgets.QMainWindow()
-        self.MainWindow.resize(348, 420)
-
+        self.MainWindow.resize(348, 450)
         self.centralwidget = QtWidgets.QWidget(self.MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
+        # Login Button
         self.LoginButton = QtWidgets.QPushButton(
             self.centralwidget, clicked=lambda: self.LoginUser())
         self.LoginButton.setGeometry(QtCore.QRect(60, 290, 221, 51))
@@ -29,8 +29,9 @@ class Ui_MainWindow(object):
                                        "                                        border:none;")
         self.LoginButton.setObjectName("LoginButton")
 
+        # User name unput
         self.Username = QtWidgets.QLineEdit(self.centralwidget)
-        self.Username.setGeometry(QtCore.QRect(70, 120, 191, 31))
+        self.Username.setGeometry(QtCore.QRect(70, 130, 191, 31))
         font = QtGui.QFont()
         font.setFamily("\'Open Sans\'")
         font.setPointSize(10)
@@ -43,16 +44,18 @@ class Ui_MainWindow(object):
         self.Username.setAlignment(QtCore.Qt.AlignCenter)
         self.Username.setObjectName("Username")
 
+        # Login Label
         self.Login = QtWidgets.QLabel(self.centralwidget)
-        self.Login.setGeometry(QtCore.QRect(70, 45, 191, 51))
+        self.Login.setGeometry(QtCore.QRect(70, 55, 191, 51))
         font = QtGui.QFont()
         font.setPointSize(20)
         self.Login.setFont(font)
         self.Login.setAlignment(QtCore.Qt.AlignCenter)
         self.Login.setObjectName("Login")
 
+        # Password input
         self.Password = QtWidgets.QLineEdit(self.centralwidget)
-        self.Password.setGeometry(QtCore.QRect(70, 170, 191, 31))
+        self.Password.setGeometry(QtCore.QRect(70, 180, 191, 31))
         font = QtGui.QFont()
         font.setFamily("\'Open Sans\'")
         font.setPointSize(10)
@@ -67,16 +70,32 @@ class Ui_MainWindow(object):
         self.Password.setAlignment(QtCore.Qt.AlignCenter)
         self.Password.setObjectName("Password")
 
+        # Forgot button
+        self.ForgotButton = QtWidgets.QPushButton(
+            self.centralwidget, clicked=lambda: self.SignUpForm())
+        self.ForgotButton.setGeometry(QtCore.QRect(100, 230, 150, 21))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        font.setBold(True)
+        font.setWeight(75)
+        self.ForgotButton.setFont(font)
+        self.ForgotButton.setStyleSheet("background-color: none;\n"
+                                        "color: black;\n"
+                                        "border: none;")
+        self.ForgotButton.setObjectName("ForgotButton")
+
+        # Already an account Lable
         self.Account = QtWidgets.QLabel(self.centralwidget)
-        self.Account.setGeometry(QtCore.QRect(70, 230, 131, 20))
+        self.Account.setGeometry(QtCore.QRect(70, 420, 131, 20))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Account.setFont(font)
         self.Account.setObjectName("Account")
 
+        # Sign Up button
         self.SignUpButton = QtWidgets.QPushButton(
             self.centralwidget, clicked=lambda: self.SignUpForm())
-        self.SignUpButton.setGeometry(QtCore.QRect(200, 230, 81, 21))
+        self.SignUpButton.setGeometry(QtCore.QRect(200, 420, 81, 21))
         font = QtGui.QFont()
         font.setPointSize(9)
         font.setBold(True)
@@ -87,8 +106,9 @@ class Ui_MainWindow(object):
                                         "border: none;")
         self.SignUpButton.setObjectName("SignUpButton")
 
+        # Message Label
         self.Message = QtWidgets.QLabel(self.centralwidget)
-        self.Message.setGeometry(QtCore.QRect(58, 365, 300, 31))
+        self.Message.setGeometry(QtCore.QRect(63, 360, 300, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.Message.setFont(font)
@@ -115,26 +135,22 @@ class Ui_MainWindow(object):
             conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER,
                                     password=DB_PASS, host=DB_HOST)
             cur = conn.cursor()
-            # cur.execute("Create TABLE Users(ID SERIAL PRIMARY KEY, firstname TEXT, lastname TEXT);")
             # Insert values
-            #cur.execute("CREATE EXTENSION pgcrypto")
+            # na elegxo mono toy to username giati
+            # kai ta dio mazi den ginetai na ksexoriso poio einai lathos
             cur.execute(
-                """SELECT username, password  FROM Users WHERE username = %s and password = crypt(%s,password)""", (self.Username.text(), self.Password.text(),))
+                """SELECT username  FROM Users WHERE username = %s """, (self.Username.text(),))
             rows = cur.fetchall()
-            # prepei na elegxo prota to username
-            # an to rows einai adeio den tha mpei stin for
-            #
-            for data in rows:
-                if str(data[0]) == self.Username.text():
-                    print('Log in')
-                    self.Message.setText("Successful  Login")
-                else:
-                    self.Message.setText("Wrong Username")
             if not rows:
-                self.Message.setText("Wrong Password")
+                self.Message.setText("Wrong Username")
             else:
-                self.Message.setText("Successful Login")
-
+                cur.execute(
+                    """SELECT username, password  FROM Users WHERE username = %s and password = crypt(%s,password)""", (self.Username.text(), self.Password.text(),))
+                rows = cur.fetchall()
+                if rows:
+                    self.Message.setText("Successful Login")
+                else:
+                    self.Message.setText("Wrong Password")
             cur.close()
             conn.close()
 
@@ -148,6 +164,7 @@ class Ui_MainWindow(object):
         self.Account.setText(_translate(
             "MainWindow", "Don\'t have an account?"))
         self.SignUpButton.setText(_translate("MainWindow", "Sign Up"))
+        self.ForgotButton.setText(_translate("MainWindow", "Forgot Password?"))
 
 
 if __name__ == "__main__":

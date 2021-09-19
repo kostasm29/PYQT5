@@ -5,7 +5,7 @@ import sys
 import smtplib
 from random import randint
 import psycopg2
-import Login
+import reset
 
 DB_HOST = "localhost"
 DB_NAME = "demodb"
@@ -21,14 +21,17 @@ msg['From'] = Email_Address
 
 
 class Ui_MainWindow(object):
-    def setupUi(self, Forgot_Password):
-        Forgot_Password.setObjectName("Forgot_Password")
-        Forgot_Password.resize(307, 338)
-        self.centralwidget = QtWidgets.QWidget(Forgot_Password)
+    def setupUi(self):
+
+        self.Forgot_Password = QtWidgets.QMainWindow()
+        self.Forgot_Password.setObjectName("Forgot_Password")
+        self.Forgot_Password.resize(307, 338)
+
+        self.centralwidget = QtWidgets.QWidget(self.Forgot_Password)
         self.centralwidget.setObjectName("centralwidget")
         self.ForgotButton = QtWidgets.QPushButton(
             self.centralwidget, clicked=lambda: self.InsertData())
-        self.ForgotButton.setGeometry(QtCore.QRect(74, 100, 161, 31))
+        self.ForgotButton.setGeometry(QtCore.QRect(74, 100, 161, 41))
         font = QtGui.QFont()
         font.setPointSize(9)
         self.ForgotButton.setFont(font)
@@ -64,24 +67,25 @@ class Ui_MainWindow(object):
         self.Message.setFont(font)
         self.Message.setText("")
         self.Message.setObjectName("Message")
-        self.Ok = QtWidgets.QPushButton(
+        self.VerifyButton = QtWidgets.QPushButton(
             self.centralwidget, clicked=lambda: self.CloseForm())
-        self.Ok.setGeometry(QtCore.QRect(100, 260, 75, 23))
+        self.VerifyButton.setGeometry(QtCore.QRect(100, 270, 120, 35))
         font = QtGui.QFont()
         font.setFamily("\'Open Sans\'")
         font.setPointSize(12)
-        self.Ok.setFont(font)
-        self.Ok.setStyleSheet("border: none;\n"
-                              "outline: none;\n""color: grey;\n"
-                              "background: #F0F0F0;\n"
-                              "font-family: \\\'Open Sans\\\', Helvetica, Arial, sans-serif;")
-        self.Ok.setText("")
-        self.Ok.setObjectName("Ok")
+        self.VerifyButton.setFont(font)
+        self.VerifyButton.setStyleSheet("border: none;\n"
+                                        "outline: none;\n""color: grey;\n"
+                                        "background: #F0F0F0;\n"
+                                        "font-family: \\\'Open Sans\\\', Helvetica, Arial, sans-serif;")
+        self.VerifyButton.setText("")
+        self.VerifyButton.setObjectName("VerifyButton")
         self.verification_code = randint(100_000, 999_999)
-        Forgot_Password.setCentralWidget(self.centralwidget)
+        self.Forgot_Password.setCentralWidget(self.centralwidget)
 
-        self.retranslateUi(Forgot_Password)
-        QtCore.QMetaObject.connectSlotsByName(Forgot_Password)
+        self.retranslateUi()
+        QtCore.QMetaObject.connectSlotsByName(self.Forgot_Password)
+        self.Forgot_Password.show()
 
     def InsertData(self):
         self.Message.setText("")
@@ -102,7 +106,7 @@ class Ui_MainWindow(object):
                 if not cur.execute("SELECT email FROM Users WHERE email = %s", (self.Email.text(),)):
                     if not cur.fetchone():
                         self.Message.setText(
-                            "This Email does not have an accont")
+                            "This Email does not have an account")
                     else:
                         try:
                             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
@@ -120,14 +124,14 @@ class Ui_MainWindow(object):
                                 smtp.send_message(msg)
 
                                 self.Message.setText(
-                                    'Successful Sign up!\nPlease verify your code sent to your email.')
+                                    'Please verify your code sent to your email.')
                                 self.Verify.setStyleSheet(
                                     "  background: none;")
-                                self.Ok.setStyleSheet("background-color: rgb(94, 94, 94);\n"
-                                                      "color: white;\n"
-                                                      "width:80%;\n"
-                                                      "border:none;")
-                                self.Ok.setText("Ok")
+                                self.VerifyButton.setStyleSheet("background-color: rgb(94, 94, 94);\n"
+                                                                "color: white;\n"
+                                                                "width:80%;\n"
+                                                                "border:none;")
+                                self.VerifyButton.setText("Verify")
 
                                 conn.commit()
                                 cur.close()
@@ -141,25 +145,25 @@ class Ui_MainWindow(object):
 
     def CloseForm(self):
         if self.Verify.text() == str(self.verification_code):
-            self.Message.setText("Well done!\nYou can login now.")
-            # self.SignUpForm.close()
+            self.Forgot_Password.close()
+            self.mw = reset.Ui_Reset()
+            self.mw.setupUi(self.Email.text())
         else:
             self.Message.setText("Wrong verification code.\nPlease try again.")
 
-    def retranslateUi(self, Forgot_Password):
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        Forgot_Password.setWindowTitle(_translate(
-            "Forgot_Password", "Forgot Password"))
+        self.Forgot_Password.setWindowTitle(_translate(
+            "self.Forgot_Password", "Forgot Password"))
         self.ForgotButton.setText(_translate(
-            "Forgot_Password", "Forgot Password"))
-        self.Email.setPlaceholderText(_translate("Forgot_Password", "Email"))
+            "self.Forgot_Password", "Forgot Password"))
+        self.Email.setPlaceholderText(
+            _translate("self.Forgot_Password", "Email"))
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    Forgot_Password = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(Forgot_Password)
-    Forgot_Password.show()
+    ui.setupUi()
     sys.exit(app.exec_())

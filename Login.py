@@ -2,6 +2,7 @@ import SignUp2
 from PyQt5 import QtCore, QtGui, QtWidgets
 from psycopg2.extensions import AsIs
 import psycopg2
+import forgot
 DB_HOST = "localhost"
 DB_NAME = "demodb"
 DB_USER = "postgres"
@@ -19,7 +20,7 @@ class Ui_MainWindow(object):
         # Login Button
         self.LoginButton = QtWidgets.QPushButton(
             self.centralwidget, clicked=lambda: self.LoginUser())
-        self.LoginButton.setGeometry(QtCore.QRect(60, 290, 221, 51))
+        self.LoginButton.setGeometry(QtCore.QRect(60, 275, 221, 51))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.LoginButton.setFont(font)
@@ -72,7 +73,7 @@ class Ui_MainWindow(object):
 
         # Forgot button
         self.ForgotButton = QtWidgets.QPushButton(
-            self.centralwidget, clicked=lambda: self.SignUpForm())
+            self.centralwidget, clicked=lambda: self.Forgot())
         self.ForgotButton.setGeometry(QtCore.QRect(100, 230, 150, 21))
         font = QtGui.QFont()
         font.setPointSize(9)
@@ -108,13 +109,13 @@ class Ui_MainWindow(object):
 
         # Message Label
         self.Message = QtWidgets.QLabel(self.centralwidget)
-        self.Message.setGeometry(QtCore.QRect(63, 360, 300, 31))
+        self.Message.setGeometry(QtCore.QRect(57, 340, 250, 51))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.Message.setFont(font)
-        self.Message.setStyleSheet("color:red;")
         self.Message.setText("")
         self.Message.setObjectName("Message")
+        self.Message.setWordWrap(True)
 
         self.MainWindow.setCentralWidget(self.centralwidget)
         self.retranslateUi(self.MainWindow)
@@ -126,11 +127,21 @@ class Ui_MainWindow(object):
         self.mw = SignUp2.Ui_SignUpForm()
         self.mw.setupUi()
 
+    def Forgot(self):
+        self.MainWindow.close()
+        self.mw = forgot.Ui_MainWindow()
+        self.mw.setupUi()
+
     def LoginUser(self):
         if not self.Username.text():
-            self.Message.setText("Username name can not be Empty")
+            self.Message.setText(
+                "Username name can not be Empty sfasfasfasfasfasfasfasfasfsas")
+            self.Message.setStyleSheet(
+                "background-color: rgb(255, 69, 69);  padding:5px; color: white;  height:fit-content; width: fit-content;   border-radius: 5px;")
         elif not self.Password.text():
             self.Message.setText("Password name can not be Empty")
+            self.Message.setStyleSheet(
+                "background-color: rgb(255, 69, 69);  color: white;  width: fit-content;   border-radius: 5px;")
         else:
             conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER,
                                     password=DB_PASS, host=DB_HOST)
@@ -143,14 +154,21 @@ class Ui_MainWindow(object):
             rows = cur.fetchall()
             if not rows:
                 self.Message.setText("Wrong Username")
+                self.Message.setStyleSheet(
+                    "background-color: rgb(255, 69, 69);  color: white;  width: fit-content;   border-radius: 5px;")
             else:
                 cur.execute(
                     """SELECT username, password  FROM Users WHERE username = %s and password = crypt(%s,password)""", (self.Username.text(), self.Password.text(),))
                 rows = cur.fetchall()
                 if rows:
                     self.Message.setText("Successful Login")
+                    self.Message.setStyleSheet(
+                        "background-color: #74f174;  color: white;  font-weight:800; width: fit-content;   border-radius: 5px;")
                 else:
                     self.Message.setText("Wrong Password")
+                    self.Message.setStyleSheet(
+                        "background-color: rgb(255, 69, 69);  color: white;  width: fit-content;   border-radius: 5px;")
+
             cur.close()
             conn.close()
 
